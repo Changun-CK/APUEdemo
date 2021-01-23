@@ -92,8 +92,8 @@ int main(int argc, char *argv[]) {
 
     int opt = 1;
     unsigned int len = sizeof(opt);
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, len);
-    setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, &opt, len);
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, len); // 重用端口地址
+    setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, &opt, len); // 保持连接
 
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(struct sockaddr_in));
