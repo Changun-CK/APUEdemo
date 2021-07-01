@@ -15,4 +15,4 @@ client:client.c
 	gcc $(FLAG) -o client client.c libUNIX_Domain_Socket.a
 
 clean: 
-	rm -rf server client *.a
+	rm -rf server client *.a *.socket

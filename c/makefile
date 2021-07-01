@@ -3,23 +3,15 @@ CC = g++
 FLAG = -g -O2 -W
 #FLAG = -O2
 
-all: selectServer selectClient pollServer webServer epollOneShot sigio atomic
+all: server client epollOneShot sigio atomic
 
-selectServer:selectServer.c
-	gcc $(FLAG) -o selectServer selectServer.c
-	cp selectServer ../bin/.
+server:server.c
+	gcc $(FLAG) -o server server.c -lpthread
+	cp server ../bin/.
 
-selectClient:selectClient.c
-	gcc $(FLAG) -o selectClient selectClient.c
-	cp selectClient ../bin/.
-
-pollServer:pollServer.c
-	gcc $(FLAG) -o pollServer pollServer.c
-	cp pollServer ../bin/.
-
-webServer:webServer.c
-	gcc $(FLAG) -o webServer webServer.c -lpthread
-	cp webServer ../bin/.
+client:client.c
+	gcc $(FLAG) -o client client.c
+	cp client ../bin/.
 
 epollOneShot:epollOneShot.c
 	gcc $(FLAG) -o epollOneShot epollOneShot.c -lpthread
@@ -34,4 +26,4 @@ atomic:atomic.c
 	cp atomic ../bin/.
 
 clean: 
-	rm -rf ../bin/* selectServer selectClient pollServer webServer epollOneShot sigio atomic
+	rm -rf ../bin/* server client epollOneShot sigio atomic

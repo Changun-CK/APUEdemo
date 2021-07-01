@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
 	char rbuf[1024];
 	char sbuf[1024];
-	const char pathname[] = "/home/changun/UNIX/ufile.socket";
+	const char pathname[] = "/home/changun/APUEdemo/c/UNIX_UDS/ufile.socket";
 	int clientfd = cli_conn(pathname);
 	printf("clientfd == %d\n", clientfd);
 

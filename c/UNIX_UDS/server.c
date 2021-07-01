@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
 	char rbuf[1024];
 	char sbuf[1024];
 	uid_t *puid = NULL;
-	const char pathname[] = "/home/changun/UNIX/ufile.socket";
+	const char pathname[] = "/home/changun/APUEdemo/c/UNIX_UDS/ufile.socket";
 	int listenfd = serv_listen(pathname);
 	int connfd = serv_accept(listenfd, puid);
 	printf("connfd == %d\n", connfd);
