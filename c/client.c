@@ -17,25 +17,17 @@ int main(int argc, char *argv[])
 		printf("example:./a.out [ip] [port]\n\n");
 		return -1;
 	}
+	char buffer[STRLEN];
 	char ip[32];
 	strcpy(ip, argv[1]);
 	int port = atoi(argv[2]);
 
-	char buffer[STRLEN];
 	int sockfd = socket(AF_INET,SOCK_STREAM,0);
-	struct hostent* h;
-	if ( (h = gethostbyname(ip)) == 0 )
-	{
-	        perror("gethostbyname");
-	        close(sockfd);
-	        return -1;
-	}
-
 	struct sockaddr_in servaddr;
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_port = htons(port); 
-	memcpy(&servaddr.sin_addr,h->h_addr,h->h_length);
+	inet_pton(AF_INET, ip, &servaddr.sin_addr.s_addr);
 
 	if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
 	{
