@@ -1,7 +1,8 @@
-
 CC = g++
 FLAG = -g -O2 -W
 #FLAG = -O2
+
+$(shell if [ ! -d "../bin" ]; then mkdir ../bin; fi)
 
 all: server client epollOneShot sigio atomic
 
