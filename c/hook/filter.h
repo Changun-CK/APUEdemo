@@ -14,11 +14,16 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-const char URL[] = "192.168.130.128";     // 监控的IP, 禁止连接该IP
 
 namespace filter {
     bool is_hook_enable();
     void set_hook_enable(bool flag);
+}
+
+char URL[128] = { 0 };     // 监控的IP, 禁止连接该IP
+void setFilterIp(const char *ip)
+{
+    strcpy(URL, ip);
 }
 
 #ifdef __cplusplus

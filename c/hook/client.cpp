@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 
     // 将hook打开, 禁止连接
     filter::set_hook_enable(true);
+    setFilterIp("192.168.130.128");
 	if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
 	{
         printf("第一次连接失败\n");
