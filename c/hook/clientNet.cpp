@@ -1,13 +1,6 @@
-#include <stdio.h>
-#include <sys/types.h>          /* See NOTES */
-#include <sys/socket.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <netdb.h>
 #include <stdlib.h>
 
-#include "filter.h"
+#include "filterNet.h"
 
 #define STRLEN 1024
 
@@ -32,19 +25,21 @@ int main(int argc, char *argv[])
 	inet_pton(AF_INET, ip, &servaddr.sin_addr.s_addr);
 
     // 将hook打开, 禁止连接
-    filter::set_hook_enable(true);
     setFilterIp(argv[1]);
+    filterNet::set_hook_enable(true);
 	if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
 	{
         printf("第一次连接失败\n");
-        // 注意, 为了测试, 第一次连接失败不要关闭socket
+        // 注意, 为了测试, 第一次连接失败, 说明hook成功, 不要关闭socket
 		//close(sockfd);
+        //return -1;
 	}
 
     // 将hook关闭, 放行
-    filter::set_hook_enable(false);
+    filterNet::set_hook_enable(false);
 	if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
 	{
+        // 第二次不会失败, 说明我们放行成功
         printf("第二次连接失败\n");
 		close(sockfd);
         return -1;
