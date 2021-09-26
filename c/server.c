@@ -29,19 +29,25 @@ int setNonBlocking(int sockfd)
 	return 0;
 }
 
-void *client_route(void *arg) {
-
+void *client_route(void *arg)
+{
 	int clientfd = (long)arg;
 
 	char buffer[BUFFER_LENGTH + 1] = {0};
 	int ret = recv(clientfd, buffer, BUFFER_LENGTH, 0);
-	if (ret < 0) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+	if (ret < 0)
+    {
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+        {
 			printf("read all data\n");
 		}
-	} else if (ret == 0) {
+	}
+    else if (ret == 0)
+    {
 		printf("disconnect \n");
-	} else {
+	}
+    else
+    {
 		printf("Recv:%s, %d Bytes\n", buffer, ret);
 	}
 
@@ -76,16 +82,18 @@ void reset_oneshot(int epollfd, int fd)
 }
 
 
-int main(int argc, char *argv[]) {
-
-	if (argc < 2) {
+int main(int argc, char *argv[])
+{
+	if (argc < 2)
+    {
 		printf("Paramter Error\n");
 		return -1;
 	}
 	int port = atoi(argv[1]);
 
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0) {
+	if (sockfd < 0)
+    {
 		perror("socket");
 		return -1;
 	}
@@ -102,31 +110,38 @@ int main(int argc, char *argv[]) {
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = INADDR_ANY;
 
-	if (bind(sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in)) < 0) {
+	if (bind(sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in)) < 0)
+    {
 		perror("bind");
-		return 2;
+		return -1;
 	}
 
-	if (listen(sockfd, 5) < 0) {
+	if (listen(sockfd, 5) < 0)
+    {
 		perror("listen");
-		return 3;
+		return -1;
 	}
 
 #if 0
 	// 一连接一线程
-	while (1) {
+	while (1)
+    {
 
 		struct sockaddr_in client_addr;
 		memset(&client_addr, 0, sizeof(struct sockaddr_in));
 		socklen_t client_len = sizeof(client_addr);
 		
 		int clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &client_len);
-		if (clientfd <= 0) continue;
+		if (clientfd <= 0)
+        {
+            continue;
+        }
 
 		pthread_t thread_id;
 		int ret = pthread_create(&thread_id, NULL, client_route, (void*)(long)clientfd);
 		pthread_detach(thread_id);
-		if (ret < 0) {
+		if (ret < 0)
+        {
 			perror("pthread_create");
 			exit(1);
 		}
@@ -143,11 +158,13 @@ int main(int argc, char *argv[]) {
 	int max_fd = sockfd;
 	int i = 0;
 
-	while (1) {
+	while (1)
+    {
 		rset = rfds;
 
 		int nready = select(max_fd+1, &rset, NULL, NULL, NULL);
-		if (nready < 0) {
+		if (nready < 0)
+        {
 			printf("select error : %d\n", errno);
 			continue;
 		}
@@ -157,53 +174,74 @@ int main(int argc, char *argv[]) {
 			continue;
 		}
 
-		if (FD_ISSET(sockfd, &rset)) { //accept
+		if (FD_ISSET(sockfd, &rset))
+        { //accept
 			struct sockaddr_in client_addr;
 			memset(&client_addr, 0, sizeof(struct sockaddr_in));
 			socklen_t client_len = sizeof(client_addr);
 
 			int clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &client_len);
-			if (clientfd <= 0) continue;
+			if (clientfd <= 0)
+            {
+                continue;
+            }
 
 			char str[INET_ADDRSTRLEN] = {0};
 			printf("recvived from %s at port %d, sockfd:%d, clientfd:%d\n", inet_ntop(AF_INET, &client_addr.sin_addr, str, sizeof(str)),
 				ntohs(client_addr.sin_port), sockfd, clientfd);
 
-			if (max_fd == FD_SETSIZE) {
+			if (max_fd == FD_SETSIZE)
+            {
 				printf("clientfd --> out range\n");
 				break;
 			}
 			FD_SET(clientfd, &rfds);
 
-			if (clientfd > max_fd) max_fd = clientfd;
+			if (clientfd > max_fd)
+            {
+                max_fd = clientfd;
+            }
 
 			printf("sockfd:%d, max_fd:%d, clientfd:%d\n", sockfd, max_fd, clientfd);
 
-			if (--nready == 0) continue;
+			if (--nready == 0)
+            {
+                continue;
+            }
 		}
 
-		for (i = sockfd + 1;i <= max_fd;i ++) {
-			if (FD_ISSET(i, &rset)) {
+		for (i = sockfd + 1; i <= max_fd; i++)
+        {
+			if (FD_ISSET(i, &rset))
+            {
 				char buffer[BUFFER_LENGTH + 1] = {0};
 				int ret = recv(i, buffer, BUFFER_LENGTH, 0);
-				if (ret < 0) {
-					if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				if (ret < 0)
+                {
+					if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    {
 						printf("read all data");
 					}
 					FD_CLR(i, &rfds);
 					close(i);
-				} else if (ret == 0) {
+				}
+                else if (ret == 0)
+                {
 					printf(" disconnect %d\n", i);
 					FD_CLR(i, &rfds);
 					close(i);
 					break;
-				} else {
+				}
+                else
+                {
 					printf("Recv: %s, %d Bytes\n", buffer, ret);
 				}
-				if (--nready == 0) break;
+				if (--nready == 0)
+                {
+                    break;
+                }
 			}
 		}
-		
 	}
 
 #elif 0
@@ -213,22 +251,30 @@ int main(int argc, char *argv[]) {
 	fds[0].events = POLLIN;
 
 	int max_fd = 0, i = 0;
-	for (i = 1;i < POLL_SIZE;i ++) {
+	for (i = 1; i < POLL_SIZE; i++)
+    {
 		fds[i].fd = -1;
 	}
 
-	while (1) {
+	while (1)
+    {
 		int nready = poll(fds, max_fd+1, 5);
-		if (nready <= 0) continue;
+		if (nready <= 0)
+        {
+            continue;
+        }
 
-		if ((fds[0].revents & POLLIN) == POLLIN) {
-			
+		if ((fds[0].revents & POLLIN) == POLLIN)
+        {
 			struct sockaddr_in client_addr;
 			memset(&client_addr, 0, sizeof(struct sockaddr_in));
 			socklen_t client_len = sizeof(client_addr);
 		
 			int clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &client_len);
-			if (clientfd <= 0) continue;
+			if (clientfd <= 0)
+            {
+                continue;
+            }
 
 			char str[INET_ADDRSTRLEN] = {0};
 			printf("recvived from %s at port %d, sockfd:%d, clientfd:%d\n", inet_ntop(AF_INET, &client_addr.sin_addr, str, sizeof(str)),
@@ -237,32 +283,49 @@ int main(int argc, char *argv[]) {
 			fds[clientfd].fd = clientfd;
 			fds[clientfd].events = POLLIN;
 
-			if (clientfd > max_fd) max_fd = clientfd;
+			if (clientfd > max_fd)
+            {
+                max_fd = clientfd;
+            }
 
-			if (--nready == 0) continue;
+			if (--nready == 0)
+            {
+                continue;
+            }
 		}
 
-		for (i = sockfd + 1;i <= max_fd;i ++) {
-			if (fds[i].revents & (POLLIN|POLLERR)) {
+		for (i = sockfd + 1; i <= max_fd; i++)
+        {
+			if (fds[i].revents & (POLLIN|POLLERR))
+            {
 				char buffer[BUFFER_LENGTH + 1] = {0};
 				int ret = recv(i, buffer, BUFFER_LENGTH, 0);
-				if (ret < 0) {
-					if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				if (ret < 0)
+                {
+					if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    {
 						printf("read all data");
 					}
 					
 					close(i);
 					fds[i].fd = -1;
-				} else if (ret == 0) {
+				}
+                else if (ret == 0)
+                {
 					printf(" disconnect %d\n", i);
 					
 					close(i);
 					fds[i].fd = -1;
 					break;
-				} else {
+				}
+                else
+                {
 					printf("Recv: %s, %d Bytes\n", buffer, ret);
 				}
-				if (--nready == 0) break;
+				if (--nready == 0)
+                {
+                    break;
+                }
 			}
 		}
 	}
@@ -277,26 +340,30 @@ int main(int argc, char *argv[]) {
 	ev.data.fd = sockfd;
 	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sockfd, &ev);
 
-	while (1) {
-
+	while (1)
+    {
 		int nready = epoll_wait(epoll_fd, events, EPOLL_SIZE, -1);
-		if (nready == -1) {
+		if (nready == -1)
+        {
 			printf("error:epoll_wait\n");
 			break;
 		}
 
 		int i = 0;
-		for (i = 0;i < nready;i ++) {
-
+		for (i = 0; i < nready; i++)
+        {
 			int iSockfd = events[i].data.fd;
-			if (iSockfd == sockfd) {
-				
+			if (iSockfd == sockfd)
+            {
 				struct sockaddr_in client_addr;
 				memset(&client_addr, 0, sizeof(struct sockaddr_in));
 				socklen_t client_len = sizeof(client_addr);
 			
 				int clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &client_len);
-				if (clientfd <= 0) continue;
+				if (clientfd <= 0)
+                {
+                    continue;
+                }
 	
 				char str[INET_ADDRSTRLEN] = {0};
 				printf("recvived from %s at port %d, sockfd:%d, clientfd:%d\n", inet_ntop(AF_INET, &client_addr.sin_addr, str, sizeof(str)),
@@ -309,16 +376,19 @@ int main(int argc, char *argv[]) {
 				//ev.data.fd = clientfd;
 				//setNonBlocking(clientfd);      // 新客户端注册时设置为非阻塞IO
 				//epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clientfd, &ev);
-			} else if (events[i].events & EPOLLIN) {
-
+			}
+            else if (events[i].events & EPOLLIN)
+            {
 				char buffer[BUFFER_LENGTH + 1];
 
 				while (1) // 这个循环必不可少, 边缘触发确保读完所有数据
 				{
 					memset(buffer, 0, BUFFER_LENGTH + 1);
 					int ret = recv(iSockfd, buffer, BUFFER_LENGTH, 0);
-					if (ret < 0) {
-						if (errno == EAGAIN || errno == EWOULDBLOCK) {
+					if (ret < 0)
+                    {
+						if (errno == EAGAIN || errno == EWOULDBLOCK)
+                        {
 							printf("loop read all data\n");
 							// 重置iSockfd的事件 
 							reset_oneshot(epoll_fd, iSockfd);
@@ -331,7 +401,9 @@ int main(int argc, char *argv[]) {
 						ev.data.fd = iSockfd;
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, iSockfd, &ev);
 						break;
-					} else if (ret == 0) {
+					}
+                    else if (ret == 0)
+                    {
 						printf(" disconnect %d\n", iSockfd);
 						
 						close(iSockfd);
@@ -341,16 +413,18 @@ int main(int argc, char *argv[]) {
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, iSockfd, &ev);
 						
 						break;
-					} else {
+					}
+                    else
+                    {
 						printf("Recv: %s, %d Bytes\n", buffer, ret);
 					}
 				}
 			}
-			else {
+			else
+            {
 				printf("something else happend!\n");
 			}
 		}
-
 	}
 
 	close(epoll_fd);
@@ -359,5 +433,4 @@ int main(int argc, char *argv[]) {
 	close(sockfd);
 
 	return 0;
-
 }

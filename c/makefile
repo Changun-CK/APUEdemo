@@ -1,10 +1,10 @@
-CC = g++
+CXX = g++
 FLAG = -g -O2 -W
 #FLAG = -O2
 
 $(shell if [ ! -d "../bin" ]; then mkdir ../bin; fi)
 
-all: server client epollOneShot sigio atomic
+all: server client epollOneShot sigio atomic example
 
 server:server.c
 	gcc $(FLAG) -o server server.c -lpthread
@@ -26,5 +26,9 @@ atomic:atomic.c
 	gcc $(FLAG) -o atomic atomic.c -lpthread
 	cp atomic ../bin/.
 
+example:./threadpool/example.cpp ./threadpool/ThreadPool.h
+	$(CXX) $(FLAG) -o example ./threadpool/example.cpp -I=./threadpool/ -lpthread
+	cp example ../bin/.
+
 clean: 
-	rm -rf ../bin/* server client epollOneShot sigio atomic
+	rm -rf ../bin/* server client epollOneShot sigio atomic example

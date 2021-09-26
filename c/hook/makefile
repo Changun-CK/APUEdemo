@@ -1,5 +1,5 @@
-GC=gcc
-GXX=g++
+GC=gcc -W -O2
+GXX=g++ -W -O2
 
 all: libfilter.so server client libfilterNet.so clientNet
 

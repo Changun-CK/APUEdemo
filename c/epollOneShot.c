@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 		}
 
 		int i = 0;
-		for (i = 0;i < nready;i ++)
+		for (i = 0; i < nready; i++)
 		{
 
 			int iSockfd = events[i].data.fd;
